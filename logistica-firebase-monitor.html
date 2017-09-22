@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Monitor Firebase</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/css/ui.jqgrid.css" />
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script
+            src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.1/jquery.jqgrid.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+
+        <script type="text/javascript">
+
+           
+            var config = {
+                apiKey: "AIzaSyAJiMJNH_YHYbWZ16fJLGFH2tfAf9qd44E",
+                authDomain: "logistica-produccion-581ab.firebaseapp.com",
+                databaseURL: "https://logistica-produccion-581ab.firebaseio.com",
+                projectId: "logistica-produccion-581ab",
+                storageBucket: "logistica-produccion-581ab.appspot.com",
+                messagingSenderId: "969486429287"
+            };
+            firebase.initializeApp(config);
+           
+
+           /*
+            var config = {
+                apiKey: "AIzaSyBz_WLozIjiRJo4YVU3-vGimoKFlIeMkkw",
+                authDomain: "logistica-22a47.firebaseapp.com",
+                databaseURL: "https://logistica-22a47.firebaseio.com",
+                projectId: "logistica-22a47",
+                storageBucket: "logistica-22a47.appspot.com",
+                messagingSenderId: "878254639753"
+            };
+            firebase.initializeApp(config);
+           */
+
+            $(document).ready(function() {
+
+                generarTablaPendientes();
+
+                /*
+                var dispositivosRef = firebase.database().ref('dispositivos');
+                dispositivosRef.orderByKey().on('value', function(snapshot) {
+                    console.log("dispositivo: ", snapshot.key);
+
+                    var imagenesConfirmadasRef = firebase.database().ref('dispositivos/' + dispId + '/imagenesConfirmadas');
+                    imagenesConfirmadasRef.on('value', function(snapshot) {
+                        console.log("imagenesConfirmadas: ", snapshot.val());
+                    });
+
+                });
+
+                */
+
+                /*
+                var imagenesConfirmadasRef = firebase.database().ref('dispositivos/' + dispId + '/imagenesConfirmadas');
+                imagenesConfirmadasRef.on('value', function(snapshot) {
+                    console.log("imagenesConfirmadas: ", snapshot.val());
+                });
+                */
+                
+                var solicitudes = firebase.database().ref('solicitudes').orderByChild('idEstado').equalTo(1);
+                solicitudes.on('value', function(snapshot){
+                    
+                    console.log("solicitudes: ", snapshot.val());
+
+                    var datos = snapshot.val();
+                    
+                    console.log("datos:" + Object.keys(datos));
+
+                    if (datos != null){
+
+                        var tabla = [];
+                        
+                        var keys = Object.keys(datos);
+                        for (var i=0; i < keys.length; i++){
+                            var unaKey = keys[i];
+                            tabla.push(datos[unaKey]);
+
+                            //$('#tblGeneracionOC > tbody:last-child').append('<tr><td>' + datos[unaKey].descripcion + '</td><td>');
+
+                        }
+
+                        $("#gdSolicitudes").jqGrid('setGridParam', { 
+                                datatype: 'local',
+                                data: tabla
+                        }).trigger("reloadGrid");
+
+
+                    }else{
+                        $("#gdSolicitudes").jqGrid("clearGridData", true).trigger("reloadGrid");
+                    }
+
+                    
+
+
+                });
+                
+            });
+
+            function generarTablaPendientes(){
+                var gdOCPendientes = $("#gdSolicitudes");
+                var datos = {};
+
+                gdOCPendientes.jqGrid({
+                    //data: datos,
+                    datatype: "local",
+                    colNames: ["usuarioId", "mensaje", "idEstado", "estado", "descripcion", "urlRespuesta"],
+                    colModel: [
+                                { name: "usuarioId", width: 40, hidden: false},
+                                { name: "mensaje", width: 150},                                                              
+                                { name: "idEstado", width: 40},
+                                { name: "estado", width: 80},                                
+                                { name: "descripcion", width: 500},
+                                { name: "urlRespuesta", width: 50, hidden: false},
+                                
+                                ],
+                    rowNum: 100,
+                    viewrecords: true,
+                    //sortorder: "asc",
+                    caption: "Solicitudes pendientes",
+                    width: 1400,
+                    height: 600,
+                    pager: "#gdSolicitudesPager",
+                }).navGrid("#gdSolicitudes");
+
+            }
+
+
+
+        </script>
+    </head>
+    <body>
+
+        <div>
+            <table id="gdSolicitudes" class="scroll" cellpadding="0" cellspacing="0"></table> 
+            <div id="gdSolicitudesPager" class="scroll" style="text-align:center;"></div>         
+        </div>
+        <div>
+            <div></div>
+            <!--<table id="tblGeneracionOC">
+                <tr>
+                    <td>idIntervencion</td>
+                    <td>fecha hora</td>
+                    <td>fecha hora</td>
+                </tr>
+            </table>-->
+        </div>
+    
+    </body>
+</html>
+
+
+
